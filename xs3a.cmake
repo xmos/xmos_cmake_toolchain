@@ -1,3 +1,11 @@
+
+# this toolchain specifies a SYSTEM_NAME which can be conveniently used elsewhere
+# however CMake doesn't support this SYSTEM_NAME natively and generates warnings
+# that it can find certain files. To work around these issues we modify the MODULE_PATH
+# here so that cmake can find the files. The files it finds are empty though 
+# and all configuration is done in this script
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
 set(CMAKE_SYSTEM_NAME XCORE_XS3A)
 
 # CMake versions 3.20 and newer now require the ASM dialect to be specified
@@ -47,6 +55,7 @@ set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 set(CMAKE_ASM_COMPILER_FORCED TRUE)
 
+set(CMAKE_ASM_COMPILER_ID XCC)
 set(CMAKE_C_FLAGS "-march=xs3a" CACHE STRING "C Compiler Base Flags" FORCE)
 set(CMAKE_CXX_FLAGS "-march=xs3a -std=c++11" CACHE STRING "C++ Compiler Base Flags" FORCE)
 set(CMAKE_ASM_FLAGS "-march=xs3a" CACHE STRING "ASM Compiler Base Flags" FORCE)

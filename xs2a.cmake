@@ -1,3 +1,6 @@
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
 set(CMAKE_SYSTEM_NAME XCORE_XS2A)
 
 # CMake versions 3.20 and newer now require the ASM dialect to be specified
@@ -46,6 +49,7 @@ endif()
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 set(CMAKE_ASM_COMPILER_FORCED TRUE)
+set(CMAKE_ASM_COMPILER_ID XCC)
 
 set(CMAKE_C_FLAGS "-march=xs2a" CACHE STRING "C Compiler Base Flags" FORCE)
 set(CMAKE_CXX_FLAGS "-march=xs2a -std=c++11" CACHE STRING "C++ Compiler Base Flags" FORCE)
