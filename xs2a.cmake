@@ -1,28 +1,28 @@
+
+# Temporary fix until CMAKE_SYSTEM_NAME is updated to Generic, this 
+# allows cmake to find the Compiler/ and Platform/ directories
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+# Deprecation warning: CMAKE_SYSTEM_NAME will eventually be changed to "Generic".
+# Use CMAKE_SYSTEM_PROCESSOR to determine if the build is targetting an xcore. see
+# issue #5 
 set(CMAKE_SYSTEM_NAME XCORE_XS2A)
+set(CMAKE_SYSTEM_PROCESSOR XCORE_XS2A) 
 
 # CMake versions 3.20 and newer now require the ASM dialect to be specified
 set(ASM_DIALECT "")
 
-# XMOS_TOOLS_PATH can be used to build with multiple versions of the XTC Tools
-#  This should not be confused with XMOS_TOOL_PATH (no "S") which is set in the
-#  XTC Tools environment and points to the tools version installed.
-if(DEFINED XMOS_TOOLS_PATH)
-    set(CMAKE_C_COMPILER "${XMOS_TOOLS_PATH}/xcc")
-    set(CMAKE_CXX_COMPILER  "${XMOS_TOOLS_PATH}/xcc")
-    set(CMAKE_ASM_COMPILER  "${XMOS_TOOLS_PATH}/xcc")
-    set(CMAKE_AR "${XMOS_TOOLS_PATH}/xmosar" CACHE FILEPATH "Archiver")
-    set(CMAKE_C_COMPILER_AR "${XMOS_TOOLS_PATH}/xmosar")
-    set(CMAKE_CXX_COMPILER_AR "${XMOS_TOOLS_PATH}/xmosar")
-    set(CMAKE_ASM_COMPILER_AR "${XMOS_TOOLS_PATH}/xmosar")
-else()
-    set(CMAKE_C_COMPILER "xcc")
-    set(CMAKE_CXX_COMPILER  "xcc")
-    set(CMAKE_ASM_COMPILER  "xcc")
-    set(CMAKE_AR "xmosar" CACHE FILEPATH "Archiver")
-    set(CMAKE_C_COMPILER_AR "xmosar")
-    set(CMAKE_CXX_COMPILER_AR "xmosar")
-    set(CMAKE_ASM_COMPILER_AR "xmosar")
+if(NOT DEFINED ENV{XMOS_TOOL_PATH})
+    message(FATAL_ERROR "XTC Environment has not been activated. This must be done before running cmake using the SetEnv script.")
 endif()
+
+set(CMAKE_C_COMPILER "$ENV{XMOS_TOOL_PATH}/bin/xcc")
+set(CMAKE_CXX_COMPILER  "$ENV{XMOS_TOOL_PATH}/bin/xcc")
+set(CMAKE_ASM_COMPILER  "$ENV{XMOS_TOOL_PATH}/bin/xcc")
+set(CMAKE_AR "$ENV{XMOS_TOOL_PATH}/bin/xmosar" CACHE FILEPATH "Archiver")
+set(CMAKE_C_COMPILER_AR "$ENV{XMOS_TOOL_PATH}/bin/xmosar")
+set(CMAKE_CXX_COMPILER_AR "$ENV{XMOS_TOOL_PATH}/bin/xmosar")
+set(CMAKE_ASM_COMPILER_AR "$ENV{XMOS_TOOL_PATH}/bin/xmosar")
 
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
     SET(CMAKE_C_USE_RESPONSE_FILE_FOR_OBJECTS 1)
@@ -46,6 +46,7 @@ endif()
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 set(CMAKE_ASM_COMPILER_FORCED TRUE)
+set(CMAKE_ASM_COMPILER_ID XCC)
 
 set(CMAKE_C_FLAGS "-march=xs2a" CACHE STRING "C Compiler Base Flags" FORCE)
 set(CMAKE_CXX_FLAGS "-march=xs2a -std=c++11" CACHE STRING "C++ Compiler Base Flags" FORCE)
