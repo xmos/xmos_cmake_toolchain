@@ -1,12 +1,13 @@
 
-# this toolchain specifies a SYSTEM_NAME which can be conveniently used elsewhere
-# however CMake doesn't support this SYSTEM_NAME natively and generates warnings
-# that it can find certain files. To work around these issues we modify the MODULE_PATH
-# here so that cmake can find the files. The files it finds are empty though 
-# and all configuration is done in this script
+# Temporary fix until CMAKE_SYSTEM_NAME is updated to Generic, this 
+# allows cmake to find the Compiler/ and Platform/ directories
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
+# Deprecation warning: CMAKE_SYSTEM_NAME will eventually be changed to "Generic".
+# Use CMAKE_SYSTEM_PROCESSOR to determine if the build is targetting an xcore. see
+# issue #5 
 set(CMAKE_SYSTEM_NAME XCORE_XS3A)
+set(CMAKE_SYSTEM_PROCESSOR XCORE_XS3A) 
 
 # CMake versions 3.20 and newer now require the ASM dialect to be specified
 set(ASM_DIALECT "")

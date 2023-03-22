@@ -7,8 +7,10 @@ add_executable(c c.c)
 add_executable(xc xc.xc)
 add_executable(cpp cpp.cpp)
 add_executable(s s.S)
+add_executable(lowers lowers.s)
+add_executable(ass ass.ass)
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
+if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL XCORE_XS3A)
     set(TARGET XCORE-AI-EXPLORER)
 else()
     set(TARGET XCORE-200-EXPLORER)
@@ -16,7 +18,7 @@ endif()
 
 include (CTest)
 
-foreach(app c xc cpp s)
+foreach(app c xc cpp s lowers ass)
     target_compile_options(${app} PRIVATE -target=${TARGET})
     target_link_options(${app} PRIVATE -target=${TARGET})
 
