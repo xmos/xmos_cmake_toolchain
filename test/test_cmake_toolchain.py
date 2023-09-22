@@ -80,7 +80,7 @@ def test_fails_if_no_xtc_env(toolchain):
 
     path = env["PATH"].split(":")
     for item in path:
-        if "XMOS_XTC" in item:
+        if "XTC" in item and "XMOS" in item:
             tools_path = item
     path.remove(tools_path)
     env["PATH"] = ":".join(path)
