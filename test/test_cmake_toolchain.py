@@ -8,6 +8,7 @@ import pytest
 import shutil
 import os
 from pathlib import Path
+import copy
 from subprocess import run, PIPE
 
 ROOT = str(Path(__file__).parent.parent)
@@ -75,15 +76,16 @@ def test_fails_if_no_xtc_env(toolchain):
 
     # remove tools path
     env = dict(**os.environ)
-    print("****", env)
+    print("++++", env)
     del env["XMOS_TOOL_PATH"]
 
     path = env["PATH"].split(":")
-    for item in path:
+    for item in copy.deepcopy(path):
         if "XTC" in item and "XMOS" in item:
-            tools_path = item
-    path.remove(tools_path)
+            path.remove(item)
     env["PATH"] = ":".join(path)
+    print("----", env)
+
 
     proc = run(
         [
