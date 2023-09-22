@@ -63,31 +63,39 @@ def test_cmake_toolchain(toolchain):
     check(proc)
 
 
-# @pytest.mark.parametrize("toolchain", ["xs3a", "xs2a"])
-# def test_fails_if_no_xtc_env(toolchain):
-#     """Build should fail if SetEnv is not run"""
-#     build_dir = (
-#         Path(__file__).parent / "build/env" / os.environ["CMAKE_ENV"] / toolchain
-#     )
-#     if build_dir.exists():
-#         shutil.rmtree(build_dir)
-#     app_dir = Path(__file__).parent / "test_app"
+@pytest.mark.parametrize("toolchain", ["xs3a", "xs2a"])
+def test_fails_if_no_xtc_env(toolchain):
+    """Build should fail if SetEnv is not run"""
+    build_dir = (
+        Path(__file__).parent / "build/env" / os.environ["CMAKE_ENV"] / toolchain
+    )
+    if build_dir.exists():
+        shutil.rmtree(build_dir)
+    app_dir = Path(__file__).parent / "test_app"
 
-#     env = dict(**os.environ)
-#     del env["XMOS_TOOL_PATH"]
-#     print("***", env)
-#     proc = run(
-#         [
-#             "cmake",
-#             "-B",
-#             str(build_dir),
-#             "-S",
-#             str(app_dir),
-#             f"-DCMAKE_TOOLCHAIN_FILE={TOOLCHAIN.format(toolchain)}",
-#         ],
-#         env=env,
-#     )
+    # remove tools path
+    env = dict(**os.environ)
+    del env["XMOS_TOOL_PATH"]
+    
+    path = env["PATH"].split(":")
+    for item in path:
+        if "XMOS_XTC" in item:
+            tools_path = item
+    path.remove(tools_path)
+    env["PATH"] = ":".join(path)
 
-#     assert (
-#         0 != proc.returncode
-#     ), "cmake configuration succeeded even though the XTC environment was not set"
+    proc = run(
+        [
+            "cmake",
+            "-B",
+            str(build_dir),
+            "-S",
+            str(app_dir),
+            f"-DCMAKE_TOOLCHAIN_FILE={TOOLCHAIN.format(toolchain)}",
+        ],
+        env=env,
+    )
+
+    assert (
+        0 != proc.returncode
+    ), "cmake configuration succeeded even though the XTC environment was not set"
