@@ -75,8 +75,9 @@ def test_fails_if_no_xtc_env(toolchain):
 
     # remove tools path
     env = dict(**os.environ)
+    print("****", env)
     del env["XMOS_TOOL_PATH"]
-    
+
     path = env["PATH"].split(":")
     for item in path:
         if "XMOS_XTC" in item:
