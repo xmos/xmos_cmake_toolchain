@@ -3,6 +3,7 @@
 
 """Build and run basic applications using the xmos cmake toolchain
 and check there are no warnings"""
+
 import pytest
 import shutil
 import os

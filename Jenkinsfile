@@ -77,7 +77,10 @@ pipeline {
                 dir("${REPO}") {
                     withVenv {
                         dir("test") {
-                            localRunPytest('-s test_cmake_toolchain.py -vv')
+                            withEnv(["XMOS_ROOT=.."]) {
+                                sh 'tox run'
+                                junit "pytest_result.xml"
+                            }
                         }
                     }
                 }
