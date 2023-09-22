@@ -59,11 +59,11 @@ pipeline {
             steps {
                 dir("${REPO}") {
                     sh 'git clone git@github.com:xmos/infr_apps.git'
-                    sh 'git clone git@github.com:xmos/infr_scripts_py.git'
+                    sh ''
                     withVenv {
                         sh 'pip install -e infr_scripts_py'
                         sh 'pip install -e infr_apps'
-                        dir("tests") {
+                        dir("test") {
                             withEnv(["XMOS_ROOT=.."]) {
                                 localRunPytest('-s test_lib_checks.py -vv')
                             }
@@ -76,7 +76,7 @@ pipeline {
             steps {
                 dir("${REPO}") {
                     withVenv {
-                        dir("tests") {
+                        dir("test") {
                             localRunPytest('-s test_cmake_toolchain.py -vv')
                         }
                     }
