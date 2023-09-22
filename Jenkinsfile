@@ -71,6 +71,18 @@ pipeline {
                 }
             }
         }
+        stage('Tests') {
+            steps {
+                dir("${REPO}") {
+                    withVenv {
+                        dir("tests") {
+                            localRunPytest('-s test_cmake_toolchain.py -vv')
+                            junit 'tests/results.xml'
+                        }
+                    }
+                }
+            }
+        }
     }
     post {
         cleanup {
