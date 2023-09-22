@@ -1,5 +1,5 @@
-Locks library change log
-========================
+xmos_cmake_toolchain library change log
+=======================================
 
 1.0.0
 -----
@@ -14,3 +14,4 @@ Locks library change log
 -----
 
   * Initial Version
+
