@@ -76,16 +76,14 @@ def test_fails_if_no_xtc_env(toolchain):
 
     # remove tools path
     env = dict(**os.environ)
-    print("++++", env)
     del env["XMOS_TOOL_PATH"]
 
+    # It was seen that in Jenkins CI the tools are in the path more than once so remove them all
     path = env["PATH"].split(":")
     for item in copy.deepcopy(path):
         if "XTC" in item and "XMOS" in item:
             path.remove(item)
     env["PATH"] = ":".join(path)
-    print("----", env)
-
 
     proc = run(
         [
