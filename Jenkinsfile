@@ -59,7 +59,7 @@ pipeline {
             steps {
                 dir("${REPO}") {
                     sh 'git clone git@github.com:xmos/infr_apps.git'
-                    sh ''
+                    sh 'git clone git@github.com:xmos/infr_scripts_py.git'
                     withVenv {
                         sh 'pip install -e infr_scripts_py'
                         sh 'pip install -e infr_apps'
