@@ -76,10 +76,12 @@ pipeline {
             steps {
                 dir("${REPO}") {
                     withVenv {
-                        dir("test") {
-                            withEnv(["XMOS_ROOT=.."]) {
-                                sh 'tox run'
-                                junit "pytest_result.xml"
+                        withTools(params.TOOLS_VERSION) {
+                            dir("test") {
+                                withEnv(["XMOS_ROOT=.."]) {
+                                    sh 'tox run'
+                                    junit "pytest_result.xml"
+                                }
                             }
                         }
                     }
