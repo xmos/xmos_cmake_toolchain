@@ -1,9 +1,14 @@
+# Copyright 2023 XMOS LIMITED.
+# This Software is subject to the terms of the XMOS Public Licence: Version 1.
+
 """Build and run basic applications using the xmos cmake toolchain
 and check there are no warnings"""
+
 import pytest
 import shutil
 import os
 from pathlib import Path
+import copy
 from subprocess import run, PIPE
 
 ROOT = str(Path(__file__).parent.parent)
@@ -69,8 +74,17 @@ def test_fails_if_no_xtc_env(toolchain):
         shutil.rmtree(build_dir)
     app_dir = Path(__file__).parent / "test_app"
 
+    # remove tools path
     env = dict(**os.environ)
     del env["XMOS_TOOL_PATH"]
+
+    # It was seen that in Jenkins CI the tools are in the path more than once so remove them all
+    path = env["PATH"].split(":")
+    for item in copy.deepcopy(path):
+        if "XTC" in item and "XMOS" in item:
+            path.remove(item)
+    env["PATH"] = ":".join(path)
+
     proc = run(
         [
             "cmake",
