@@ -16,6 +16,6 @@ main:
 .globl main
 .type main,@function
 .set main.nstackwords,0;  .global main.nstackwords
-.set main.maxcores,1;               .global main.maxcores
-.set main.maxtimers,0;              .global main.maxtimers
-.set main.maxchanends,0;            .global main.maxchanends
+.set main.maxcores,1;      .global main.maxcores
+.set main.maxtimers,0;     .global main.maxtimers
+.set main.maxchanends,0;   .global main.maxchanends
