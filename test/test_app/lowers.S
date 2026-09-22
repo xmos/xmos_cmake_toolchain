@@ -29,7 +29,7 @@ FUNCTION_NAME:
 #endif // defined(__XS2A__) ||  defined(__XS3A__)
 
 
-#if defined(__VX4B__)
+#if defined(__VX4B__) || defined(__riscv_xxcore)
 #define NSTACKWORDS     (0)
 #define FUNCTION_NAME   main
 
