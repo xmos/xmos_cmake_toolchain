@@ -38,15 +38,16 @@ pipeline {
             }
         }  // stage('Checkout')
 
+        //TODO this repo does not have a library structure, so these checks are not be fully applicable
+        /*
         stage('Library checks') {
             steps {
-                //TODO this repo does not have a library structure, so these checks might not be fully applicable
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS', message: 'Repo checks failed') {
-                    runRepoChecks("${WORKSPACE}/${REPO_NAME}")
-                }
+                runRepoChecks("${WORKSPACE}/${REPO_NAME}")
+                
             }
         } // stage('Library checks')
-
+        */
+        
         stage('Test setup') {
             steps {
                 dir("${REPO_NAME}/test") {
