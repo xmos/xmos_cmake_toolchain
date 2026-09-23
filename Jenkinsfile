@@ -1,11 +1,4 @@
-@Library('xmos_jenkins_shared_library@v0.27.0') _
-
-def localRunPytest(String extra_args="") {
-    catchError{
-        sh "python -m pytest --junitxml=pytest_result.xml -rA -v --durations=0 -o junit_logging=all ${extra_args}"
-    }
-    junit "pytest_result.xml"
-}
+@Library('xmos_jenkins_shared_library@v0.54.0') _
 
 getApproval()
 
@@ -13,7 +6,6 @@ pipeline {
     agent {
         label 'linux&&64'
     }
-
     options {
         disableConcurrentBuilds()
         skipDefaultCheckout()
@@ -22,73 +14,78 @@ pipeline {
     }
     parameters {
         string(
-            name: 'TOOLS_VERSION',
-            defaultValue: '15.2.1',
-            description: 'The XTC tools version'
+            name: 'TOOLS_VERSION_XS',
+            defaultValue: '15.3.1',
+            description: 'XS XTC tools version'
+        )
+        string(
+            name: 'TOOLS_VERSION_VX',
+            defaultValue: '-j --repo arch_vx_slipgate -b master -a XTC 131',
+            description: 'VX4 XTC tools version'
         )
     }
-    environment {
-        REPO = 'xmos_cmake_toolchain'
-        PYTHON_VERSION = "3.10.5"
-        VENV_DIRNAME = ".venv"
-    }
-
     stages {
-        stage('Get repo') {
+        stage('Checkout') {
             steps {
-                sh "mkdir ${REPO}"
-                // source checks require the directory
-                // name to be the same as the repo name
-                dir("${REPO}") {
-                    checkout scm
-                    sh 'git submodule update --init --recursive --depth 1'
+                println "Stage running on ${env.NODE_NAME}"
+                script {
+                    def (server, user, repo) = extractFromScmUrl()
+                    env.REPO_NAME = repo
+                }
+                dir(REPO_NAME){
+                    checkoutScmShallow()
                 }
             }
-        }
-        stage ("Create Python environment") {
-            steps {
-                dir("${REPO}") {
-                    createVenv('requirements.txt')
-                    withVenv {
-                        sh 'pip install -r requirements.txt'
-                    }
-                }
-            }
-        }
+        }  // stage('Checkout')
+
+        //TODO this repo does not have a library structure, so these checks are not be fully applicable
+        /*
         stage('Library checks') {
             steps {
-                dir("${REPO}") {
-                    sh 'git clone git@github.com:xmos/infr_apps.git'
-                    sh 'git clone git@github.com:xmos/infr_scripts_py.git'
-                    withVenv {
-                        sh 'pip install -e infr_scripts_py'
-                        sh 'pip install -e infr_apps'
-                        dir("test") {
-                            withEnv(["XMOS_ROOT=.."]) {
-                                localRunPytest('-s test_lib_checks.py -vv')
-                            }
-                        }
-                    }
+                runRepoChecks("${WORKSPACE}/${REPO_NAME}")
+                
+            }
+        } // stage('Library checks')
+        */
+        
+        stage('Test setup') {
+            steps {
+                dir("${REPO_NAME}/test") {
+                    createVenv(reqFile: 'requirements.txt')
                 }
             }
-        }
+        } // stage('Test setup')
+
         stage('Tests') {
-            steps {
-                dir("${REPO}") {
-                    withVenv {
-                        withTools(params.TOOLS_VERSION) {
-                            dir("test") {
-                                withEnv(["XMOS_ROOT=.."]) {
-                                    sh 'tox run'
-                                    junit "pytest_result.xml"
+            parallel {
+                stage('XS3 test') {
+                    steps {
+                        dir("${REPO_NAME}/test") {
+                            withVenv {
+                                withTools(params.TOOLS_VERSION_XS) {
+                                    runPytest('--toolchain xs2a')
+                                    runPytest('--toolchain xs3a')
                                 }
                             }
                         }
                     }
-                }
+                } // stage('XS3 test')
+
+                stage('VX4 test') {
+                    steps {
+                        dir("${REPO_NAME}/test") {
+                            withVenv {
+                                withTools(params.TOOLS_VERSION_VX) {
+                                    runPytest('--toolchain vx4_xcc')
+                                }
+                            }
+                        }
+                    }
+                } // stage('VX4 test')
             }
-        }
+        } // stage('Tests')
     }
+
     post {
         cleanup {
             xcoreCleanSandbox()

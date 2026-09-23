@@ -1,10 +1,9 @@
-# Copyright 2023 XMOS LIMITED.
+# Copyright 2023-2026 XMOS LIMITED.
 # This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 """Build and run basic applications using the xmos cmake toolchain
 and check there are no warnings"""
 
-import pytest
 import shutil
 import os
 from pathlib import Path
@@ -14,6 +13,9 @@ from subprocess import run, PIPE
 ROOT = str(Path(__file__).parent.parent)
 TOOLCHAIN = f"{ROOT}/{{}}.cmake"
 
+CWD = Path(__file__).parent
+BUILD_PATH = CWD / "build"
+APP_DIR = CWD / "test_app"
 
 def check(proc):
     """Check the output of proc contains no errors or warnings"""
@@ -25,16 +27,12 @@ def check(proc):
     assert "warning" not in proc.stderr.lower(), proc.stderr
     assert "error" not in proc.stderr.lower(), proc.stderr
 
-
-@pytest.mark.parametrize("toolchain", ["xs3a", "xs2a"])
-def test_cmake_toolchain(toolchain):
-    """Build the test_app with both toolchains and run each app, checking it returns 0"""
-    build_dir = (
-        Path(__file__).parent / "build/basic" / os.environ["CMAKE_ENV"] / toolchain
-    )
+def run_cmake_toolchain_test(toolchain):
+    """Build the test_app with a toolchain and run each app, checking it returns 0"""
+    build_dir = BUILD_PATH  / "basic" / toolchain    
     if build_dir.exists():
         shutil.rmtree(build_dir)
-    app_dir = Path(__file__).parent / "test_app"
+    
     run(["cmake", "--version"], check=True)
 
     proc = run(
@@ -43,7 +41,7 @@ def test_cmake_toolchain(toolchain):
             "-B",
             str(build_dir),
             "-S",
-            str(app_dir),
+            str(APP_DIR),
             f"-DCMAKE_TOOLCHAIN_FILE={TOOLCHAIN.format(toolchain)}",
         ],
         text=True,
@@ -64,16 +62,12 @@ def test_cmake_toolchain(toolchain):
     check(proc)
 
 
-@pytest.mark.parametrize("toolchain", ["xs3a", "xs2a"])
-def test_fails_if_no_xtc_env(toolchain):
+def run_missing_xtc_env_test(toolchain):
     """Build should fail if SetEnv is not run"""
-    build_dir = (
-        Path(__file__).parent / "build/env" / os.environ["CMAKE_ENV"] / toolchain
-    )
+    build_dir = BUILD_PATH / "env" / toolchain    
     if build_dir.exists():
         shutil.rmtree(build_dir)
-    app_dir = Path(__file__).parent / "test_app"
-
+    
     # remove tools path
     env = dict(**os.environ)
     del env["XMOS_TOOL_PATH"]
@@ -91,12 +85,19 @@ def test_fails_if_no_xtc_env(toolchain):
             "-B",
             str(build_dir),
             "-S",
-            str(app_dir),
+            str(APP_DIR),
             f"-DCMAKE_TOOLCHAIN_FILE={TOOLCHAIN.format(toolchain)}",
         ],
         env=env,
     )
 
-    assert (
-        0 != proc.returncode
-    ), "cmake configuration succeeded even though the XTC environment was not set"
+    ERR_MSG = "cmake configuration succeeded even though the XTC environment was not set"
+    assert (0 != proc.returncode), ERR_MSG
+
+def test_cmake_toolchain(toolchain):
+    run_cmake_toolchain_test(toolchain)
+    run_missing_xtc_env_test(toolchain)
+
+
+if __name__ == "__main__":
+    run_cmake_toolchain_test("xs3a")

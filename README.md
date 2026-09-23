@@ -16,10 +16,10 @@ Once the `cmake` stage has completed the actual compilation build can commence. 
 
 ## Tests
 
-A test suite checks the defined toolchains against a few cmake versions to ensure they build and run as expected. To run the tests locally do:
+A test suite checks the defined toolchains to ensure they build and run as expected. To run the tests locally do:
 
 ```
-pip install -Ur requirements.txt
 cd test
-tox run
+pip install -r requirements.txt
+python -m pytest
 ```
