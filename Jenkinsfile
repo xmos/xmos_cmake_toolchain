@@ -11,6 +11,7 @@ def runToolTest(toolchain, toolsVersionName) {
                 }
             }
         }
+        uninstallTools(params[toolsVersionName])
     }
 }
 
