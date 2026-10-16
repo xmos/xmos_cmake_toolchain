@@ -2,6 +2,18 @@
 
 getApproval()
 
+def runToolTest(toolchain, toolsVersionName) {
+    stage("${toolchain} test") {
+        dir("${REPO_NAME}/test") {
+            withVenv {
+                withTools(params[toolsVersionName]) {
+                    runPytest("-s --toolchain ${toolchain}")
+                }
+            }
+        }
+    }
+}
+
 pipeline {
     agent {
         label 'linux&&64'
@@ -23,6 +35,11 @@ pipeline {
             defaultValue: '-j --repo arch_vx_slipgate -b master -a XTC 131',
             description: 'VX4 XTC tools version'
         )
+        string(
+         name: 'TOOLS_VERSION_RV',
+            defaultValue: 'bob@develop',
+            description: 'VX New tools version'
+        )
     }
     stages {
         stage('Checkout') {
@@ -37,16 +54,6 @@ pipeline {
                 }
             }
         }  // stage('Checkout')
-
-        //TODO this repo does not have a library structure, so these checks are not be fully applicable
-        /*
-        stage('Library checks') {
-            steps {
-                runRepoChecks("${WORKSPACE}/${REPO_NAME}")
-                
-            }
-        } // stage('Library checks')
-        */
         
         stage('Test setup') {
             steps {
@@ -57,31 +64,13 @@ pipeline {
         } // stage('Test setup')
 
         stage('Tests') {
-            parallel {
-                stage('XS3 test') {
-                    steps {
-                        dir("${REPO_NAME}/test") {
-                            withVenv {
-                                withTools(params.TOOLS_VERSION_XS) {
-                                    runPytest('--toolchain xs2a')
-                                    runPytest('--toolchain xs3a')
-                                }
-                            }
-                        }
-                    }
-                } // stage('XS3 test')
-
-                stage('VX4 test') {
-                    steps {
-                        dir("${REPO_NAME}/test") {
-                            withVenv {
-                                withTools(params.TOOLS_VERSION_VX) {
-                                    runPytest('--toolchain vx4_xcc')
-                                }
-                            }
-                        }
-                    }
-                } // stage('VX4 test')
+            steps {
+                script {
+                    runToolTest('xs2a', 'TOOLS_VERSION_XS')
+                    runToolTest('xs3a', 'TOOLS_VERSION_XS')
+                    runToolTest('vx4_xcc', 'TOOLS_VERSION_VX')
+                    runToolTest('vx4_clang', 'TOOLS_VERSION_RV')
+                }
             }
         } // stage('Tests')
     }
