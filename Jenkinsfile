@@ -4,16 +4,12 @@ getApproval()
 
 def runToolTest(toolchain, toolsVersionName) {
     stage("${toolchain} test") {
-        try {
-            dir("${REPO_NAME}/test") {
-                withVenv {
-                    withTools(params[toolsVersionName]) {
-                        runPytest("--toolchain ${toolchain}")
-                    }
+        dir("${REPO_NAME}/test") {
+            withVenv {
+                withTools(params[toolsVersionName]) {
+                    runPytest("--toolchain ${toolchain}")
                 }
             }
-        } finally {
-            uninstallTools(params[toolsVersionName])
         }
     }
 }
@@ -70,12 +66,10 @@ pipeline {
         stage('Tests') {
             steps {
                 script {
-                    parallel(
-                        xs2a: { runToolTest('xs2a', 'TOOLS_VERSION_XS') },
-                        xs3a: { runToolTest('xs3a', 'TOOLS_VERSION_XS') },
-                        vx4_xcc: { runToolTest('vx4_xcc', 'TOOLS_VERSION_VX') },
-                        vx4_clang: { runToolTest('vx4_clang', 'TOOLS_VERSION_RV') }
-                    )
+                    runToolTest('xs2a', 'TOOLS_VERSION_XS')
+                    runToolTest('xs3a', 'TOOLS_VERSION_XS')
+                    runToolTest('vx4_xcc', 'TOOLS_VERSION_VX')
+                    runToolTest('vx4_clang', 'TOOLS_VERSION_RV')
                 }
             }
         } // stage('Tests')
