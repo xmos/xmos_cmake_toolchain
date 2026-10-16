@@ -4,14 +4,17 @@ getApproval()
 
 def runToolTest(toolchain, toolsVersionName) {
     stage("${toolchain} test") {
-        dir("${REPO_NAME}/test") {
-            withVenv {
-                withTools(params[toolsVersionName]) {
-                    runPytest("--toolchain ${toolchain}")
+        try {
+            dir("${REPO_NAME}/test") {
+                withVenv {
+                    withTools(params[toolsVersionName]) {
+                        runPytest("--toolchain ${toolchain}")
+                    }
                 }
             }
+        } finally {
+            uninstallTools(params[toolsVersionName])
         }
-        uninstallTools(params[toolsVersionName])
     }
 }
 
