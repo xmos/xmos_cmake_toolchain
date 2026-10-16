@@ -7,7 +7,7 @@ def runToolTest(toolchain, toolsVersionName) {
         dir("${REPO_NAME}/test") {
             withVenv {
                 withTools(params[toolsVersionName]) {
-                    runPytest("--toolchain ${toolchain}")
+                    runPytest("-s --toolchain ${toolchain}")
                 }
             }
         }
